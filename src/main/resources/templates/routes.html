@@ -52,7 +52,7 @@
 </header>
 
     <section class="road">
-        <img src="/images/pic4.jpg" alt="Title image">
+        <img th:src="${route.imageUrl}" alt="Title image">
         <div>
             <h2 th:text="${route.name}"></h2>
             <p th:text="${route.description}"></p>
