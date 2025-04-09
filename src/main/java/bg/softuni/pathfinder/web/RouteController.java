@@ -8,6 +8,8 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.servlet.ModelAndView;
 
+import java.util.List;
+
 @Controller
 public class RouteController {
 
@@ -21,9 +23,11 @@ public class RouteController {
     @GetMapping("/routes")
     public String routes(Model model){
 
-        RouteShortInfoDto randomRoute = routeService.getRandomRoute();
+        //RouteShortInfoDto randomRoute = routeService.getRandomRoute();
 
-       model.addAttribute("route", randomRoute);
+        List<RouteShortInfoDto> routes = routeService.getAll();
+
+        model.addAttribute("allRoutes", routes);
 
         return "routes";
     }
