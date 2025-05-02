@@ -1,7 +1,7 @@
 package bg.softuni.pathfinder.service;
 
-import bg.softuni.pathfinder.model.Picture;
-import bg.softuni.pathfinder.model.Route;
+import bg.softuni.pathfinder.model.entity.Picture;
+import bg.softuni.pathfinder.model.entity.Route;
 import bg.softuni.pathfinder.repository.RouteRepository;
 import bg.softuni.pathfinder.service.dto.RouteShortInfoDto;
 import jakarta.transaction.Transactional;

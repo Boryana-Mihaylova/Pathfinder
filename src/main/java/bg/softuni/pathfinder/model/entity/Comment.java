@@ -1,9 +1,8 @@
-package bg.softuni.pathfinder.model;
+package bg.softuni.pathfinder.model.entity;
 
 import jakarta.persistence.*;
 
 import java.time.Instant;
-import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "comments")

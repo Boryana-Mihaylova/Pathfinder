@@ -1,4 +1,4 @@
-package bg.softuni.pathfinder.model;
+package bg.softuni.pathfinder.model.entity;
 
 import jakarta.persistence.*;
 
@@ -31,7 +31,7 @@ public class User {
     private Level level;
 
 
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.EAGER)
     private Set<Role> roles;
 
 
