@@ -1,10 +1,13 @@
 package bg.softuni.pathfinder.web;
 
 
-import bg.softuni.pathfinder.config.UserSession;
+
+import bg.softuni.pathfinder.model.binding.UserLoginBindingModel;
+import bg.softuni.pathfinder.model.binding.UserRegisterBindingModel;
+import bg.softuni.pathfinder.model.service.UserServiceModel;
+import bg.softuni.pathfinder.model.view.UserViewModel;
+
 import bg.softuni.pathfinder.service.UserService;
-import bg.softuni.pathfinder.web.dto.UserLoginDTO;
-import bg.softuni.pathfinder.web.dto.UserRegisterDTO;
 import jakarta.validation.Valid;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Controller;
@@ -12,7 +15,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.ModelAndView;
+
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 
@@ -21,100 +24,106 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 public class UserController {
 
     private final UserService userService;
-    private final UserSession userSession;
-
     private final ModelMapper modelMapper;
 
-
-    public UserController(UserService userService, UserSession userSession, ModelMapper modelMapper) {
+    public UserController(UserService userService,
+                          ModelMapper modelMapper) {
         this.userService = userService;
-        this.userSession = userSession;
         this.modelMapper = modelMapper;
     }
-    @ModelAttribute("registerData")
-    public UserRegisterDTO registerDTO(){
-        return new UserRegisterDTO();
+
+    @ModelAttribute
+    public UserRegisterBindingModel userRegisterBindingModel() {
+        return new UserRegisterBindingModel();
     }
 
-    @ModelAttribute("loginData")
-    public UserLoginDTO loginData (){
-        return new UserLoginDTO();
+    @ModelAttribute
+    public UserLoginBindingModel userLoginBindingModel() {
+        return new UserLoginBindingModel();
     }
 
     @GetMapping("/register")
-    public String viewRegister(Model model){
-
+    public String register(Model model) {
         return "register";
     }
 
     @PostMapping("/register")
-    public String doRegister(@Valid UserRegisterDTO data, BindingResult bindingResult, RedirectAttributes redirectAttributes){
+    public String registerConfirm(@Valid UserRegisterBindingModel userRegisterBindingModel,
+                                  BindingResult bindingResult,
+                                  RedirectAttributes rAtt) {
 
-        if (bindingResult.hasErrors() || !data.getPassword().equals(data.getConfirmPassword())){
-            redirectAttributes.addFlashAttribute("registerData", data);
-            redirectAttributes.addFlashAttribute(
-                    "org.springframework.validation.BindingResult.registerData", bindingResult);
+        if (bindingResult.hasErrors() || !userRegisterBindingModel.getPassword()
+                .equals(userRegisterBindingModel.getConfirmPassword())) {
+            rAtt
+                    .addFlashAttribute("userRegisterBindingModel", userRegisterBindingModel)
+                    .addFlashAttribute("org.springframework.validation.BindingResult.userRegisterBindingModel",
+                            bindingResult);
 
             return "redirect:register";
         }
 
-        boolean success = userService.register(data);
+        boolean isNameExists = userService.isNameExists(userRegisterBindingModel.getUsername());
 
-        if (!success) {
-            return "redirect:register";
+        if (isNameExists) {
+            //ToDo: redirect with message
         }
+        userService.registerUser(modelMapper
+                .map(userRegisterBindingModel, UserServiceModel.class));
 
         return "redirect:login";
     }
 
     @GetMapping("/login")
-    public String login(Model model){
+    public String login(Model model) {
+        model.addAttribute("isExist", true);
 
-        return "login";
+        return "/login";
     }
 
     @PostMapping("/login")
-    public String doLogin(@Valid UserLoginDTO data, BindingResult bindingResult, RedirectAttributes redirectAttributes) {
-
-        if (userSession.isLoggedIn()){
-            return "redirect:/";
-        }
-
+    public String loginConfirm(@Valid UserLoginBindingModel userLoginBindingModel,
+                               BindingResult bindingResult,
+                               RedirectAttributes rAtt) {
         if (bindingResult.hasErrors()) {
-            redirectAttributes.addFlashAttribute("loginData", data);
-            redirectAttributes.addFlashAttribute(
-                    "org.springframework.validation.BindingResult.loginData", bindingResult);
+            rAtt
+                    .addFlashAttribute("userLoginBindingModel", userLoginBindingModel)
+                    .addFlashAttribute("org.springframework.validation.BindingResult.userLoginBindingModel"
+                            , userLoginBindingModel);
 
             return "redirect:login";
         }
 
-        boolean success = userService.login(data);
+        UserServiceModel user = userService
+                .findUserByUsernameAndPassword
+                        (userLoginBindingModel.getUsername(), userLoginBindingModel.getPassword());
 
-        if (!success){
-            redirectAttributes.addFlashAttribute("loginError", true);
+        if (user == null) {
+            rAtt
+                    .addFlashAttribute("isExist", false)
+                    .addFlashAttribute("userLoginBindingModel", userLoginBindingModel)
+                    .addFlashAttribute("org.springframework.org.BindingResult.userLoginBindingModel",
+                            bindingResult);
+
             return "redirect:login";
         }
+
+        userService.loginUser(user.getId(), user.getUsername());
 
         return "redirect:/";
+    }
 
+    @GetMapping("/logout")
+    public String logout() {
+        userService.logout();
+        return "redirect:/";
     }
 
     @GetMapping("/profile/{id}")
-    public String profile(@PathVariable long id) {
+    private String profile(@PathVariable Long id, Model model) {
 
+        model.addAttribute("user", modelMapper
+                .map(userService.findById(id), UserViewModel.class));
 
         return "profile";
     }
-
-//    @GetMapping("/logout")
-//    public String logout(){
-//
-//        if (!userSession.isLoggedIn()){
-//            return "redirect:/";
-//        }
-//
-//        userSession.logout();
-//
-//        return "redirect:/";
-//    }
 }
