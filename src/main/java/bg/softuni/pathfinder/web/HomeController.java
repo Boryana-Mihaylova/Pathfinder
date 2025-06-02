@@ -1,6 +1,7 @@
 package bg.softuni.pathfinder.web;
 
 
+import bg.softuni.pathfinder.service.PictureService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -12,16 +13,17 @@ public class HomeController {
 
 
 
-//    private final PictureService pictureService;
-//
-//    public HomeController(PictureService pictureService) {
-//        this.pictureService = pictureService;
-//    }
+    private final PictureService pictureService;
+
+    public HomeController(PictureService pictureService) {
+        this.pictureService = pictureService;
+    }
+
 
     @GetMapping("/")
     public String index(Model model) {
-//        model.addAttribute("pictures",
-//                pictureService.findAllUrls());
+        model.addAttribute("pictures",
+                pictureService.findAllUrls());
 
         return "index";
     }
