@@ -1,6 +1,9 @@
 package bg.softuni.pathfinder.service;
 
 
+import bg.softuni.pathfinder.model.entity.Route;
+import bg.softuni.pathfinder.model.service.RouteServiceModel;
+import bg.softuni.pathfinder.model.view.RouteDetailsViewModel;
 import bg.softuni.pathfinder.model.view.RouteViewModel;
 import bg.softuni.pathfinder.repository.RouteRepository;
 import org.modelmapper.ModelMapper;
@@ -12,13 +15,21 @@ import java.util.stream.Collectors;
 @Service
 public class RouteServiceImpl implements RouteService {
 
+
     private final RouteRepository routeRepository;
+    private final UserService userService;
+    private final CategoryService categoryService;
+
 
     private final ModelMapper modelMapper;
 
-    public RouteServiceImpl(RouteRepository routeRepository,
+    public RouteServiceImpl(RouteRepository routeRepository, UserService userService, CategoryService categoryService, CategoryService categoryService1, UserService userService1, CategoryService categoryService2,
                             ModelMapper modelMapper) {
         this.routeRepository = routeRepository;
+        this.userService = userService1;
+        this.categoryService = categoryService2;
+
+
         this.modelMapper = modelMapper;
     }
 
@@ -46,5 +57,25 @@ public class RouteServiceImpl implements RouteService {
                 })
                 .collect(Collectors.toList());
 
+    }
+
+    @Override
+    public void addNewRoute(RouteServiceModel routeServiceModel) {
+        Route route = modelMapper.map(routeServiceModel, Route.class);
+        route.setAuthor(userService.findCurrentLoginUserEntity());
+
+        route.setCategories(routeServiceModel
+                .getCategories()
+                .stream()
+                .map(categoryService::findCategoryByName)
+                .collect(Collectors.toSet()));
+
+        routeRepository.save(route);
+    }
+
+    @Override
+    public RouteDetailsViewModel findRouteById(Long id) {
+        return routeRepository.findById(id).map(route -> modelMapper.map(route, RouteDetailsViewModel.class))
+                .orElse(null);
     }
 }
