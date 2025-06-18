@@ -3,10 +3,7 @@ package bg.softuni.pathfinder.model.service;
 
 
 
-import bg.softuni.pathfinder.model.entity.Comment;
-import bg.softuni.pathfinder.model.entity.Level;
-import bg.softuni.pathfinder.model.entity.Picture;
-import bg.softuni.pathfinder.model.entity.User;
+import bg.softuni.pathfinder.model.entity.*;
 import jdk.jfr.Category;
 
 import java.util.Set;
@@ -22,7 +19,7 @@ public class RouteServiceModel {
     private User author;
     private Set<Comment> comments;
     private Set<Picture> pictures;
-    private Set<Category> categories;
+    private Set<CategoryName> categories;
 
     public RouteServiceModel() {
     }
@@ -99,11 +96,11 @@ public class RouteServiceModel {
         this.pictures = pictures;
     }
 
-    public Set<Category> getCategories() {
+    public Set<CategoryName> getCategories() {
         return categories;
     }
 
-    public void setCategories(Set<Category> categories) {
+    public void setCategories(Set<CategoryName> categories) {
         this.categories = categories;
     }
 }
