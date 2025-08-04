@@ -35,3 +35,10 @@ out/
 
 ### VS Code ###
 .vscode/
+
+# Local environment variables
+.env
+.env.*
+
+# Secrets (DO NOT COMMIT)
+friendly-lend-app/src/main/resources/application-secrets.properties
